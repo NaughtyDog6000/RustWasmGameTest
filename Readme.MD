@@ -1,11 +1,21 @@
-# Build Process
+## BUILD / RUN
 
-## web
+## Build Process
 
-RUN:
-./webglbuild.bat
-(runs cargo build release for wasm and then wasm build stuff)
-(runs serve in the built directory so you can see if it works)
-## native
+### web
 
-cargo run --release
+cargo build --target wasm32-unknown-unknown --release
+
+### native
+
+cargo build --release
+
+## Serving using npx serve
+
+### linux (for pm2)
+
+./serve.sh
+
+### other
+
+serve wasm_help -p 6964

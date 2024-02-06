@@ -12,3 +12,5 @@ edition = "2021"
 bracket-terminal = { git = "https://github.com/amethyst/bracket-lib.git" }
 legion = { version = "0.3.1", default-features = false, features = ["wasm-bindgen"] }
 lazy_static = "1.4.0"
+web-time = "1.0.0"
+wasm-cookies = "0.1.0"
