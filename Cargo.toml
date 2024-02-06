@@ -14,3 +14,4 @@ legion = { version = "0.3.1", default-features = false, features = ["wasm-bindge
 lazy_static = "1.4.0"
 web-time = "1.0.0"
 wasm-cookies = "0.1.0"
+specs = {version = "0.20.0", features = ["derive"]} 
