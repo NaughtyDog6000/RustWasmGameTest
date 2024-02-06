@@ -1,6 +1,6 @@
 use specs::prelude::*;
 
-use crate::{components::{has_velocity::Velocity, position::FloatPosition}, LastTickInstant};
+use crate::{components::{velocity::Velocity, position::FloatPosition}, LastTickInstant};
 
 pub struct VelocityMovement {}
 

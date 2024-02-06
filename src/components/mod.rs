@@ -1,2 +1,3 @@
-pub mod has_velocity;
+pub mod velocity;
 pub mod position;
+pub mod player;

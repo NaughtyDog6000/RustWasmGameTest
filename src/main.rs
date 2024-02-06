@@ -1,5 +1,5 @@
 use bracket_terminal::prelude::*;
-use components::{has_velocity::Velocity, position::{FloatPosition, IntPosition}};
+use components::{player::{player_input, Player}, position::{FloatPosition, IntPosition}, velocity::Velocity};
 use specs::{prelude::*, Component};
 use specs::WorldExt;
 use systems::velocity_movement::VelocityMovement;
@@ -15,11 +15,17 @@ pub struct Renderable {
     fg: RGB,
     bg: RGB,
 }
+
+
+#[allow(dead_code)]
 struct State {
     ecs: World,
     start_instant: Instant,
 }
 
+
+
+// used to figure out the deltatime in the next tick
 pub struct LastTickInstant(Instant);
 
 impl Default for LastTickInstant {
@@ -53,6 +59,9 @@ impl GameState for State {
         // display the framtime in the top left
         ctx.print(0, 0, ctx.frame_time_ms);
 
+        // take the player input and move the user
+        player_input(self, ctx);
+
         self.run_systems();
 
         ctx.print(1, 1, "Hello Bracket World");
@@ -81,13 +90,16 @@ fn main() -> BError {
         .with_title("Flappy birb Terminal")
         .with_fps_cap(144.0)
         .with_fullscreen(false)
+        .with_fitscreen(true)
         .build()?;
 
     let mut gs = State::new();
+    // register the components
     gs.ecs.register::<IntPosition>();
     gs.ecs.register::<FloatPosition>();
     gs.ecs.register::<Renderable>();
     gs.ecs.register::<Velocity>();
+    gs.ecs.register::<Player>();
 
     // set the last tick instant to now
     gs.ecs.insert::<LastTickInstant>(LastTickInstant(web_time::Instant::now()));
@@ -100,20 +112,19 @@ fn main() -> BError {
         bg: RGB::from_u8(0,0,0),
         fg: RGB::from_u8(255, 255, 0),
     })
+    .with(Player{})
     .build();
 
 
     // Create Static Object
     gs.ecs.create_entity()
-    .with(IntPosition {x: 40, y: 25})
+    .with(IntPosition {x: 20, y: 25})
     .with(Renderable {
-        glyph: to_cp437('P'),
+        glyph: to_cp437('#'),
         bg: RGB::from_u8(0,0,0),
-        fg: RGB::from_u8(255, 255, 0),
+        fg: RGB::from_u8(64, 64, 64),
     })
     .build();
-
-
 
     // create moving tubes
     for i in 0..10 {
@@ -124,7 +135,7 @@ fn main() -> BError {
             fg: RGB::from_u8(0, 255, 0),
             bg: RGB::new(),
         })
-        .with(Velocity::default())
+        .with(Velocity::from_i32(2, 1))
         .build();
     }
 

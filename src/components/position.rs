@@ -11,6 +11,7 @@ pub struct FloatPosition {
     pub y: f32,
 }
 
+#[allow(dead_code)]
 impl FloatPosition {
     pub fn to_int_position(&self) -> IntPosition {
         return IntPosition {
@@ -18,4 +19,9 @@ impl FloatPosition {
             y: self.y as i32
         }
     }
+
+    pub fn from_int(x: i32, y: i32) -> FloatPosition {
+        FloatPosition { x: x as f32, y: y as f32 }
+    }
 }
+
