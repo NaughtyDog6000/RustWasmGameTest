@@ -212,11 +212,11 @@ function makeMutClosure(arg0, arg1, dtor, f) {
     return real;
 }
 function __wbg_adapter_20(arg0, arg1) {
-    wasm.wasm_bindgen__convert__closures__invoke0_mut__h19ae771bcf957e1e(arg0, arg1);
+    wasm.wasm_bindgen__convert__closures__invoke0_mut__h9c63d10d22ee6529(arg0, arg1);
 }
 
 function __wbg_adapter_23(arg0, arg1, arg2) {
-    wasm.wasm_bindgen__convert__closures__invoke1_mut__hbd993e79bbed926b(arg0, arg1, addHeapObject(arg2));
+    wasm.wasm_bindgen__convert__closures__invoke1_mut__h728c051ac282ae96(arg0, arg1, addHeapObject(arg2));
 }
 
 function handleError(f, args) {
