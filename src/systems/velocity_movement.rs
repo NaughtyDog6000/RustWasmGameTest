@@ -1,13 +1,13 @@
 use specs::prelude::*;
 
-use crate::{components::{left_mover::LeftMover, position::FloatPosition}, LastTickInstant};
+use crate::{components::{has_velocity::Velocity, position::FloatPosition}, LastTickInstant};
 
-pub struct LeftWalker {}
+pub struct VelocityMovement {}
 
-impl<'a> System<'a> for LeftWalker {
+impl<'a> System<'a> for VelocityMovement {
     type SystemData = (
         Read<'a, LastTickInstant>,
-        ReadStorage<'a, LeftMover>, 
+        ReadStorage<'a, Velocity>, 
         WriteStorage<'a, FloatPosition>);
 
     fn run(&mut self, (last_tick, lefty, mut pos) : Self::SystemData) {

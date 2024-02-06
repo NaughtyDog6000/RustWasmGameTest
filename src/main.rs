@@ -1,8 +1,8 @@
 use bracket_terminal::prelude::*;
-use components::{left_mover::LeftMover, position::{FloatPosition, IntPosition}};
+use components::{has_velocity::Velocity, position::{FloatPosition, IntPosition}};
 use specs::{prelude::*, Component};
 use specs::WorldExt;
-use systems::left_walker::LeftWalker;
+use systems::velocity_movement::VelocityMovement;
 use web_time::Instant;
 mod entities;
 mod components;
@@ -31,7 +31,7 @@ impl Default for LastTickInstant {
 
 impl State {
     fn run_systems(&mut self) {
-        let mut lw = LeftWalker{};
+        let mut lw = VelocityMovement{};
         lw.run_now(&self.ecs);
         self.ecs.maintain();
     }
@@ -87,7 +87,7 @@ fn main() -> BError {
     gs.ecs.register::<IntPosition>();
     gs.ecs.register::<FloatPosition>();
     gs.ecs.register::<Renderable>();
-    gs.ecs.register::<LeftMover>();
+    gs.ecs.register::<Velocity>();
 
     // set the last tick instant to now
     gs.ecs.insert::<LastTickInstant>(LastTickInstant(web_time::Instant::now()));
@@ -124,7 +124,7 @@ fn main() -> BError {
             fg: RGB::from_u8(0, 255, 0),
             bg: RGB::new(),
         })
-        .with(LeftMover::default())
+        .with(Velocity::default())
         .build();
     }
 
