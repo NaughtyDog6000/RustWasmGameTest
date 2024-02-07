@@ -1,9 +1,11 @@
 use bracket_terminal::prelude::*;
-use components::{player::{player_input, Player}, position::{FloatPosition, IntPosition}, velocity::Velocity};
+use systems::velocity_movement::VelocityMovement;
+use components::{position::{FloatPosition, IntPosition}, velocity::Velocity};
+use entities::player::{player_input, Player};
 use specs::{prelude::*, Component};
 use specs::WorldExt;
-use systems::velocity_movement::VelocityMovement;
 use web_time::Instant;
+
 mod entities;
 mod components;
 mod systems;

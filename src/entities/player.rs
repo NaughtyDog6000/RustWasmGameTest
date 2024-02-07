@@ -3,7 +3,7 @@ use specs::{prelude::*, Component};
 
 use crate::{Renderable, State};
 
-use super::position::FloatPosition;
+use crate::FloatPosition;
 
 
 

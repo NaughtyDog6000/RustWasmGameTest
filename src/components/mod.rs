@@ -1,3 +1,3 @@
 pub mod velocity;
 pub mod position;
-pub mod player;
+pub mod collider;
