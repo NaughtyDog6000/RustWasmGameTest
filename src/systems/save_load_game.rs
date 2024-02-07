@@ -10,6 +10,7 @@ use specs::saveload::{
 
 use crate::components::position::{FloatPosition, IntPosition};
 use crate::components::velocity::Velocity;
+use crate::resources::{load_game_file_vec_u8, save_game_file_json_buf};
 use crate::NetworkSync;
 
 #[derive(Debug)]
@@ -27,8 +28,6 @@ impl fmt::Display for Combined {
     }
 }
 
-// This returns the `ron::ser:Error` in form of the `Combined` enum, which can
-// then be matched and displayed accordingly.
 impl From<serde_json::Error> for Combined {
     fn from(x: serde_json::error::Error) -> Self {
         Combined::Serde(x)
@@ -43,7 +42,7 @@ impl From<Infallible> for Combined {
 }
 
 pub struct Serialize;
-
+// -- SAVE --
 impl<'a> System<'a> for Serialize {
     type SystemData = (
         Entities<'a>,
@@ -68,18 +67,19 @@ impl<'a> System<'a> for Serialize {
         // TODO!() here we write to the file
         console::log(format!(
             "{}",
-            String::from_utf8(buf).expect("should be utf-8")
+            String::from_utf8(buf.clone()).expect("should be utf-8")
         ));
+
+        save_game_file_json_buf(buf);
     }
 }
 
-// LOAD SAVE
-use bracket_terminal::EMBED;
+// use bracket_terminal::EMBED;
 
-bracket_terminal::embedded_resource!(RAW_FILE, "../../resources/fake_saves/save1.json");
+// bracket_terminal::embedded_resource!(RAW_FILE, "../../resources/fake_saves/save1.json");
 
 pub struct Deserialize;
-
+// -- LOAD --
 impl<'a> System<'a> for Deserialize {
     type SystemData = (
         Entities<'a>,
@@ -101,16 +101,20 @@ impl<'a> System<'a> for Deserialize {
       mut markers
     ): Self::SystemData,
     ) {
-        bracket_terminal::link_resource!(RAW_FILE, "../../resources/fake_saves/save1.json");
+        // bracket_terminal::link_resource!(RAW_FILE, "../../resources/fake_saves/save1.json");
 
-        let data = bracket_terminal::EMBED
-            .lock()
-            .get_resource("../../resources/fake_saves/save1.json".to_string())
-            .unwrap();
+        // let data = bracket_terminal::EMBED
+        //     .lock()
+        //     .get_resource("../../resources/fake_saves/save1.json".to_string())
+        //     .unwrap();
 
-        let json_string = std::str::from_utf8(&data).expect("Unable to convert to string.");
+        let file = load_game_file_vec_u8();
+        if file.is_err() {return;}
+        let data = file.unwrap();
 
-        let mut de = serde_json::de::Deserializer::from_str(json_string);
+        // let json_string = std::str::from_utf8(&data).expect("Unable to convert to string.");
+
+        let mut de = serde_json::de::Deserializer::from_slice(&data);
 
         DeserializeComponents::<Combined, _>::deserialize(
             &mut (velocities, fpositions, ipositions),

@@ -53,11 +53,11 @@ impl Default for LastTickInstant {
 impl State {
     fn run_systems(&mut self) {
         match self.ser_de_state {
-            RunLoadSave::Load => {
+            RunLoadSave::Save => {
                 let mut ser = Serialize{};
                 ser.run_now(&self.ecs);
             },
-            RunLoadSave::Save => {
+            RunLoadSave::Load => {
                 let mut de = Deserialize{};
                 de.run_now(&self.ecs);
             },

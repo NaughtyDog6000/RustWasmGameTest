@@ -4,3 +4,5 @@ Cargo.lock
 
 
 wasm_help/staging
+
+savegame.json

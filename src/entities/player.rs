@@ -30,8 +30,12 @@ pub fn player_input(gs: &mut State, ctx: &mut BTerm) {
             VirtualKeyCode::Up | VirtualKeyCode::W => move_player(0.0, -1.0, &mut gs.ecs),
             VirtualKeyCode::Down | VirtualKeyCode::S => move_player(0.0, 1.0, &mut gs.ecs),
             VirtualKeyCode::Comma => console::log("heelloo"),
-            VirtualKeyCode::Plus => gs.ser_de_state = RunLoadSave::Load,
+            VirtualKeyCode::Equals => gs.ser_de_state = RunLoadSave::Load,
             VirtualKeyCode::Minus => gs.ser_de_state = RunLoadSave::Save,
+            VirtualKeyCode::Escape => {
+                // todo!() save and quit
+                ctx.quit()
+            },
             
             _ => {}
         },
