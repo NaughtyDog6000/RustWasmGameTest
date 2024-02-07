@@ -4,7 +4,7 @@ use bracket_terminal::{
 };
 use specs::{prelude::*, Component};
 
-use crate::{Renderable, State};
+use crate::{Renderable, RunLoadSave, State};
 
 use crate::FloatPosition;
 
@@ -30,6 +30,9 @@ pub fn player_input(gs: &mut State, ctx: &mut BTerm) {
             VirtualKeyCode::Up | VirtualKeyCode::W => move_player(0.0, -1.0, &mut gs.ecs),
             VirtualKeyCode::Down | VirtualKeyCode::S => move_player(0.0, 1.0, &mut gs.ecs),
             VirtualKeyCode::Comma => console::log("heelloo"),
+            VirtualKeyCode::Plus => gs.ser_de_state = RunLoadSave::Load,
+            VirtualKeyCode::Minus => gs.ser_de_state = RunLoadSave::Save,
+            
             _ => {}
         },
     }

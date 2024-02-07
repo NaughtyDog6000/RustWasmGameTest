@@ -10,11 +10,12 @@ use specs::{
     saveload::{MarkedBuilder, SimpleMarker, SimpleMarkerAllocator},
     Component,
 };
-use systems::{save_load_game::Serialize, velocity_movement::VelocityMovement};
+use systems::{save_load_game::{Deserialize, Serialize}, velocity_movement::VelocityMovement};
 use web_time::Instant;
 
 mod components;
 mod entities;
+pub mod resources;
 mod systems;
 
 #[derive(Component)]
@@ -24,10 +25,18 @@ pub struct Renderable {
     bg: RGB,
 }
 
+
+pub enum RunLoadSave {
+    Load,
+    Save,
+    None
+}
+
 #[allow(dead_code)]
 struct State {
     ecs: World,
     start_instant: Instant,
+    ser_de_state: RunLoadSave
 }
 
 pub struct NetworkSync;
@@ -43,11 +52,21 @@ impl Default for LastTickInstant {
 
 impl State {
     fn run_systems(&mut self) {
+        match self.ser_de_state {
+            RunLoadSave::Load => {
+                let mut ser = Serialize{};
+                ser.run_now(&self.ecs);
+            },
+            RunLoadSave::Save => {
+                let mut de = Deserialize{};
+                de.run_now(&self.ecs);
+            },
+            RunLoadSave::None => {},
+        }
+        self.ser_de_state = RunLoadSave::None;
+
         let mut lw = VelocityMovement {};
         lw.run_now(&self.ecs);
-
-        let mut ser = Serialize {};
-        ser.run_now(&self.ecs);
 
         self.ecs.maintain();
     }
@@ -56,6 +75,7 @@ impl State {
         State {
             ecs: World::new(),
             start_instant: web_time::Instant::now(),
+            ser_de_state: RunLoadSave::None
         }
     }
 }
@@ -107,6 +127,7 @@ fn main() -> BError {
         .build()?;
 
     let mut gs = State::new();
+
     // register the components
     gs.ecs.register::<IntPosition>();
     gs.ecs.register::<FloatPosition>();
@@ -122,6 +143,7 @@ fn main() -> BError {
     // set the last tick instant to now
     gs.ecs
         .insert::<LastTickInstant>(LastTickInstant(web_time::Instant::now()));
+
 
     // Create Player
     gs.ecs

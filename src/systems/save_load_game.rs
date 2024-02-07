@@ -1,5 +1,5 @@
 use std::convert::Infallible;
-use std::fmt;
+use std::{fmt, string};
 
 use bracket_terminal::console;
 use serde_json::{self, json};
@@ -11,196 +11,6 @@ use specs::saveload::{
 use crate::components::position::{FloatPosition, IntPosition};
 use crate::components::velocity::Velocity;
 use crate::NetworkSync;
-
-const ENTITIES: &str = r#"[
-    {
-      "marker": [
-        0
-      ],
-      "components": [
-        null,
-        {
-          "x": 32.0,
-          "y": 12.0
-        },
-        null
-      ]
-    },
-    {
-      "marker": [
-        1
-      ],
-      "components": [
-        {
-          "x_velocity": 2.0,
-          "y_velocity": 1.0
-        },
-        {
-          "x": 67.62347,
-          "y": 43.81175
-        },
-        null
-      ]
-    },
-    {
-      "marker": [
-        2
-      ],
-      "components": [
-        {
-          "x_velocity": 2.0,
-          "y_velocity": 1.0
-        },
-        {
-          "x": 73.62343,
-          "y": 43.81175
-        },
-        null
-      ]
-    },
-    {
-      "marker": [
-        3
-      ],
-      "components": [
-        {
-          "x_velocity": 2.0,
-          "y_velocity": 1.0
-        },
-        {
-          "x": 79.62343,
-          "y": 43.81175
-        },
-        null
-      ]
-    },
-    {
-      "marker": [
-        4
-      ],
-      "components": [
-        {
-          "x_velocity": 2.0,
-          "y_velocity": 1.0
-        },
-        {
-          "x": 85.62348,
-          "y": 43.81175
-        },
-        null
-      ]
-    },
-    {
-      "marker": [
-        5
-      ],
-      "components": [
-        {
-          "x_velocity": 2.0,
-          "y_velocity": 1.0
-        },
-        {
-          "x": 91.62349,
-          "y": 43.81175
-        },
-        null
-      ]
-    },
-    {
-      "marker": [
-        6
-      ],
-      "components": [
-        {
-          "x_velocity": 2.0,
-          "y_velocity": 1.0
-        },
-        {
-          "x": 97.62353,
-          "y": 43.81175
-        },
-        null
-      ]
-    },
-    {
-      "marker": [
-        7
-      ],
-      "components": [
-        {
-          "x_velocity": 2.0,
-          "y_velocity": 1.0
-        },
-        {
-          "x": 103.62362,
-          "y": 43.81175
-        },
-        null
-      ]
-    },
-    {
-      "marker": [
-        8
-      ],
-      "components": [
-        {
-          "x_velocity": 2.0,
-          "y_velocity": 1.0
-        },
-        {
-          "x": 109.62363,
-          "y": 43.81175
-        },
-        null
-      ]
-    },
-    {
-      "marker": [
-        9
-      ],
-      "components": [
-        {
-          "x_velocity": 2.0,
-          "y_velocity": 1.0
-        },
-        {
-          "x": 115.623634,
-          "y": 43.81175
-        },
-        null
-      ]
-    },
-    {
-      "marker": [
-        10
-      ],
-      "components": [
-        {
-          "x_velocity": 2.0,
-          "y_velocity": 1.0
-        },
-        {
-          "x": 121.623634,
-          "y": 43.81175
-        },
-        null
-      ]
-    }
-  ]"#;
-
-// macro_rules! serialize_individually {
-//     ($ecs:expr, $ser:expr, $data:expr, $( $type:ty),*) => {
-//         $(
-//         SerializeComponents::<NoError, SimpleMarker<SerializeMe>>::serialize(
-//             &( $ecs.read_storage::<$type>(), ),
-//             &$data.0,
-//             &$data.1,
-//             &mut $ser,
-//         )
-//         .unwrap();
-//         )*
-//     };
-// }
 
 #[derive(Debug)]
 enum Combined {
@@ -263,6 +73,11 @@ impl<'a> System<'a> for Serialize {
     }
 }
 
+// LOAD SAVE
+use bracket_terminal::EMBED;
+
+bracket_terminal::embedded_resource!(RAW_FILE, "../../resources/fake_saves/save1.json");
+
 pub struct Deserialize;
 
 impl<'a> System<'a> for Deserialize {
@@ -286,7 +101,16 @@ impl<'a> System<'a> for Deserialize {
       mut markers
     ): Self::SystemData,
     ) {
-        let mut de = serde_json::de::Deserializer::from_str(ENTITIES);
+        bracket_terminal::link_resource!(RAW_FILE, "../../resources/fake_saves/save1.json");
+
+        let data = bracket_terminal::EMBED
+            .lock()
+            .get_resource("../../resources/fake_saves/save1.json".to_string())
+            .unwrap();
+
+        let json_string = std::str::from_utf8(&data).expect("Unable to convert to string.");
+
+        let mut de = serde_json::de::Deserializer::from_str(json_string);
 
         DeserializeComponents::<Combined, _>::deserialize(
             &mut (velocities, fpositions, ipositions),
@@ -296,16 +120,5 @@ impl<'a> System<'a> for Deserialize {
             &mut de,
         )
         .unwrap_or_else(|e| console::log(format!("Error in Deserialize: {}", e)))
-
-        // TODO!() here we write to the file
     }
 }
-
-// if on the web, we cannot save/load yet.
-// #[cfg(target_arch = "wasm32")]
-// pub fn save_game(_ecs : &mut World) {
-
-// }
-
-// #[cfg(not(target_arch = "wasm32"))]
-// pub fn save_game(ecs : &mut World) {}
