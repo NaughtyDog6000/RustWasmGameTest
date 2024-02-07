@@ -1,6 +1,7 @@
 use specs::{prelude::*, Component};
+use serde::{Deserialize, Serialize};
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct Velocity {
     pub x_velocity: f32,
     pub y_velocity: f32,

@@ -1,11 +1,12 @@
 use specs::{prelude::*, Component};
+use serde::{Deserialize, Serialize};
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct IntPosition {
     pub x: i32,
     pub y: i32,
 }
-#[derive(Component)]
+#[derive(Component, Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct FloatPosition {
     pub x: f32,
     pub y: f32,

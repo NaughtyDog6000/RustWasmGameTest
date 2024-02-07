@@ -1,15 +1,14 @@
 use bracket_terminal::prelude::*;
-use systems::velocity_movement::VelocityMovement;
+use systems::{save_load_game::Serialize, velocity_movement::VelocityMovement};
 use components::{position::{FloatPosition, IntPosition}, velocity::Velocity};
 use entities::player::{player_input, Player};
-use specs::{prelude::*, Component};
+use specs::{prelude::*, saveload::{MarkedBuilder, SimpleMarker, SimpleMarkerAllocator}, Component};
 use specs::WorldExt;
 use web_time::Instant;
 
 mod entities;
 mod components;
 mod systems;
-
 
 #[derive(Component)]
 pub struct Renderable {
@@ -26,6 +25,9 @@ struct State {
 }
 
 
+pub struct NetworkSync;
+struct FilePersistent;
+
 
 // used to figure out the deltatime in the next tick
 pub struct LastTickInstant(Instant);
@@ -41,6 +43,10 @@ impl State {
     fn run_systems(&mut self) {
         let mut lw = VelocityMovement{};
         lw.run_now(&self.ecs);
+
+        let mut ser = Serialize{};
+        ser.run_now(&self.ecs);
+        
         self.ecs.maintain();
     }
 
@@ -103,6 +109,10 @@ fn main() -> BError {
     gs.ecs.register::<Velocity>();
     gs.ecs.register::<Player>();
 
+    // register Save load system
+    gs.ecs.register::<SimpleMarker<NetworkSync>>();    
+    gs.ecs.insert(SimpleMarkerAllocator::<NetworkSync>::default());
+
     // set the last tick instant to now
     gs.ecs.insert::<LastTickInstant>(LastTickInstant(web_time::Instant::now()));
 
@@ -115,6 +125,7 @@ fn main() -> BError {
         fg: RGB::from_u8(255, 255, 0),
     })
     .with(Player{})
+    .marked::<SimpleMarker<NetworkSync>>()
     .build();
 
 
@@ -138,6 +149,7 @@ fn main() -> BError {
             bg: RGB::new(),
         })
         .with(Velocity::from_i32(2, 1))
+        .marked::<SimpleMarker<NetworkSync>>()
         .build();
     }
 
