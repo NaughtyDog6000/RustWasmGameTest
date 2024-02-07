@@ -1,5 +1,5 @@
-use specs::{prelude::*, Component};
 use serde::{Deserialize, Serialize};
+use specs::{prelude::*, Component};
 
 #[derive(Component, Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct Velocity {
@@ -27,5 +27,4 @@ impl Velocity {
             y_velocity: y as f32,
         }
     }
-
 }

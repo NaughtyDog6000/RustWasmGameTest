@@ -1,11 +1,12 @@
-use bracket_terminal::{console::{self, log, Console}, prelude::{BTerm, VirtualKeyCode, RGB}};
+use bracket_terminal::{
+    console,
+    prelude::{BTerm, VirtualKeyCode, RGB},
+};
 use specs::{prelude::*, Component};
 
 use crate::{Renderable, State};
 
 use crate::FloatPosition;
-
-
 
 #[derive(Component, Debug)]
 pub struct Player {}
@@ -30,6 +31,6 @@ pub fn player_input(gs: &mut State, ctx: &mut BTerm) {
             VirtualKeyCode::Down | VirtualKeyCode::S => move_player(0.0, 1.0, &mut gs.ecs),
             VirtualKeyCode::Comma => console::log("heelloo"),
             _ => {}
-        }
+        },
     }
 }

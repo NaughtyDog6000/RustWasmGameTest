@@ -1,13 +1,20 @@
 use bracket_terminal::prelude::*;
-use systems::{save_load_game::Serialize, velocity_movement::VelocityMovement};
-use components::{position::{FloatPosition, IntPosition}, velocity::Velocity};
+use components::{
+    position::{FloatPosition, IntPosition},
+    velocity::Velocity,
+};
 use entities::player::{player_input, Player};
-use specs::{prelude::*, saveload::{MarkedBuilder, SimpleMarker, SimpleMarkerAllocator}, Component};
 use specs::WorldExt;
+use specs::{
+    prelude::*,
+    saveload::{MarkedBuilder, SimpleMarker, SimpleMarkerAllocator},
+    Component,
+};
+use systems::{save_load_game::Serialize, velocity_movement::VelocityMovement};
 use web_time::Instant;
 
-mod entities;
 mod components;
+mod entities;
 mod systems;
 
 #[derive(Component)]
@@ -17,17 +24,13 @@ pub struct Renderable {
     bg: RGB,
 }
 
-
 #[allow(dead_code)]
 struct State {
     ecs: World,
     start_instant: Instant,
 }
 
-
 pub struct NetworkSync;
-struct FilePersistent;
-
 
 // used to figure out the deltatime in the next tick
 pub struct LastTickInstant(Instant);
@@ -38,19 +41,17 @@ impl Default for LastTickInstant {
     }
 }
 
-
 impl State {
     fn run_systems(&mut self) {
-        let mut lw = VelocityMovement{};
+        let mut lw = VelocityMovement {};
         lw.run_now(&self.ecs);
 
-        let mut ser = Serialize{};
+        let mut ser = Serialize {};
         ser.run_now(&self.ecs);
-        
+
         self.ecs.maintain();
     }
 
-    
     fn new() -> State {
         State {
             ecs: World::new(),
@@ -61,7 +62,6 @@ impl State {
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
-       
         // clear the screen and set background
         ctx.cls_bg(RGB::from_f32(0.5, 0.5, 1.0));
         // display the framtime in the top left
@@ -82,9 +82,14 @@ impl GameState for State {
             ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph);
         }
 
-
         for (pos, render) in (&float_positions, &renderables).join() {
-            ctx.set(pos.x as i32, pos.y as i32, render.fg, render.bg, render.glyph); // TODO!() always rounds down 
+            ctx.set(
+                pos.x as i32,
+                pos.y as i32,
+                render.fg,
+                render.bg,
+                render.glyph,
+            ); // TODO!() always rounds down
         }
 
         let mut last = self.ecs.write_resource::<LastTickInstant>();
@@ -94,7 +99,7 @@ impl GameState for State {
 }
 
 fn main() -> BError {
-    let context = BTermBuilder::simple(160,90)?
+    let context = BTermBuilder::simple(160, 90)?
         .with_title("Flappy birb Terminal")
         .with_fps_cap(144.0)
         .with_fullscreen(false)
@@ -110,49 +115,55 @@ fn main() -> BError {
     gs.ecs.register::<Player>();
 
     // register Save load system
-    gs.ecs.register::<SimpleMarker<NetworkSync>>();    
-    gs.ecs.insert(SimpleMarkerAllocator::<NetworkSync>::default());
+    gs.ecs.register::<SimpleMarker<NetworkSync>>();
+    gs.ecs
+        .insert(SimpleMarkerAllocator::<NetworkSync>::default());
 
     // set the last tick instant to now
-    gs.ecs.insert::<LastTickInstant>(LastTickInstant(web_time::Instant::now()));
+    gs.ecs
+        .insert::<LastTickInstant>(LastTickInstant(web_time::Instant::now()));
 
     // Create Player
-    gs.ecs.create_entity()
-    .with(FloatPosition {x: 40.0, y: 25.0})
-    .with(Renderable {
-        glyph: to_cp437('P'),
-        bg: RGB::from_u8(0,0,0),
-        fg: RGB::from_u8(255, 255, 0),
-    })
-    .with(Player{})
-    .marked::<SimpleMarker<NetworkSync>>()
-    .build();
-
+    gs.ecs
+        .create_entity()
+        .with(FloatPosition { x: 40.0, y: 25.0 })
+        .with(Renderable {
+            glyph: to_cp437('P'),
+            bg: RGB::from_u8(0, 0, 0),
+            fg: RGB::from_u8(255, 255, 0),
+        })
+        .with(Player {})
+        .marked::<SimpleMarker<NetworkSync>>()
+        .build();
 
     // Create Static Object
-    gs.ecs.create_entity()
-    .with(IntPosition {x: 20, y: 25})
-    .with(Renderable {
-        glyph: to_cp437('#'),
-        bg: RGB::from_u8(0,0,0),
-        fg: RGB::from_u8(64, 64, 64),
-    })
-    .build();
+    gs.ecs
+        .create_entity()
+        .with(IntPosition { x: 20, y: 25 })
+        .with(Renderable {
+            glyph: to_cp437('#'),
+            bg: RGB::from_u8(0, 0, 0),
+            fg: RGB::from_u8(64, 64, 64),
+        })
+        .build();
 
     // create moving tubes
     for i in 0..10 {
-        gs.ecs.create_entity()
-        .with(FloatPosition { x: i as f32 * 6.0 + 20.0 , y: 20.0 })
-        .with(Renderable {
-            glyph: to_cp437('@'),
-            fg: RGB::from_u8(0, 255, 0),
-            bg: RGB::new(),
-        })
-        .with(Velocity::from_i32(2, 1))
-        .marked::<SimpleMarker<NetworkSync>>()
-        .build();
+        gs.ecs
+            .create_entity()
+            .with(FloatPosition {
+                x: i as f32 * 6.0 + 20.0,
+                y: 20.0,
+            })
+            .with(Renderable {
+                glyph: to_cp437('@'),
+                fg: RGB::from_u8(0, 255, 0),
+                bg: RGB::new(),
+            })
+            .with(Velocity::from_i32(2, 1))
+            .marked::<SimpleMarker<NetworkSync>>()
+            .build();
     }
-
 
     main_loop(context, gs)
 }

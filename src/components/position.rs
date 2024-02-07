@@ -1,5 +1,5 @@
-use specs::{prelude::*, Component};
 use serde::{Deserialize, Serialize};
+use specs::{prelude::*, Component};
 
 #[derive(Component, Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct IntPosition {
@@ -17,12 +17,14 @@ impl FloatPosition {
     pub fn to_int_position(&self) -> IntPosition {
         return IntPosition {
             x: self.x as i32,
-            y: self.y as i32
-        }
+            y: self.y as i32,
+        };
     }
 
     pub fn from_int(x: i32, y: i32) -> FloatPosition {
-        FloatPosition { x: x as f32, y: y as f32 }
+        FloatPosition {
+            x: x as f32,
+            y: y as f32,
+        }
     }
 }
-
